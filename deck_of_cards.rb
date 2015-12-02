@@ -67,7 +67,22 @@ class Deck
       card.output_card
     end
   end
+
+  def size
+    return @cards.length
+  end
 end
 
 deck = Deck.new
+puts "Initial Deck:"
 deck.output
+puts
+puts "Deck after being shuffled:"
+deck.shuffle
+deck.output
+puts
+puts "Dealing a card:"
+puts deck.deal.output_card
+puts
+puts "Size of deck after deal:"
+puts deck.size
