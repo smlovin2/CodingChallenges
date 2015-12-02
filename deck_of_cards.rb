@@ -15,38 +15,12 @@ class Deck
   def initialize
     # Create an array that holds all the different cards
     @cards = []
+    suits = [:clubs, :diamonds, :hearts, :spades]
+    ranks = [:ace, 2, 3, 4, 5, 6, 7, 8, 9, 10, :jack, :queen, :king]
 
     # Do a double for loop to go through create all the different cards.
-    # The first loop will take care of the suit while the second will take
-    # care of the rank.
-    for i in 1..4
-      for j in 1..13
-        # We assign a number to the different suits
-        case i
-        when 1
-          suit = :clubs
-        when 2
-          suit = :diamonds
-        when 3
-          suit = :hearts
-        when 4
-          suit = :spades
-        end
-
-        # We also need to take care of the special cases for the rank
-        case j
-        when 1
-          rank = :ace
-        when 11
-          rank = :jack
-        when 12
-          rank = :queen
-        when 13
-          rank = :king
-        else
-          rank = j
-        end
-
+    suits.each do |suit|
+      ranks.each do |rank|
         # Now we create the card and add it to our array
         @cards << Card.new(rank, suit)
       end
