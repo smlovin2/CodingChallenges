@@ -10,38 +10,49 @@ class Image
 	end
 
   def blur(distance)
+    # go through the data looking for 1's. When a 1 is found then travel the
+    # manhattan distance around it and mark those spaces to be blurred.
     @data.each_index do |row_num|
       @data[row_num].each_index do |column_num|
         if @data[row_num][column_num] == 1
           puts "Found a 1! Let's travel!"
-          travel(distance, row_num, column_num, 1)
+          travel(distance, row_num, column_num)
           puts
-        elsif @data[row_num][column_num] == 0.5
-           @data[row_num][column_num] = 1
+        end
+      end
+    end
+
+    # go through and blur the marked spaces 
+    @data.each_index do |row_num|
+      @data[row_num].each_index do |column_num|
+        if @data[row_num][column_num] == 0.5
+          @data[row_num][column_num] = 1
         end
       end
     end
   end
 
   private
-  def travel(distance, row, column, val)
+  def travel(distance, row, column)
     puts "Distance: #{distance}, You are at row: #{row} column: #{column}"
 
-    # make it a 1 or 0.5
-    @data[row][column] = val
+    # mark it to be blured by setting it to 0.5
+    if @data[row][column] == 0
+      @data[row][column] = 0.5
+    end
 
     # base case
     if distance == 0
       return
     end
     # go up as far as we can
-    travel((distance-1), (row-1), (column), 1) unless (row-1) < 0 || @data[row-1][column] == 1
+    travel((distance-1), (row-1), (column)) unless (row-1) < 0
     # next we go to the right
-    travel((distance-1), (row), (column+1), 0.5) unless (column+1) > (@data[row].size-1) || @data[row][column+1] == 1 || @data[row][column+1] == 0.5
+    travel((distance-1), (row), (column+1)) unless (column+1) > (@data[row].size-1)
     # go down
-    travel((distance-1), (row+1), (column), 0.5) unless (row+1) > (@data.size-1) || @data[row+1][column] == 1 || @data[row+1][column] == 0.5
+    travel((distance-1), (row+1), (column)) unless (row+1) > (@data.size-1)
     # go left
-    travel((distance -1), (row), (column-1), 1) unless (column-1) < 0 || @data[row][column-1] == 1
+    travel((distance-1), (row), (column-1)) unless (column-1) < 0
   end
 end
 
