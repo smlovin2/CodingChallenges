@@ -10,49 +10,38 @@ class Image
 	end
 
   def blur(distance)
+		# make a copy of our data
+		tmp_data = Marshal.load(Marshal.dump(@data))
     # go through the data looking for 1's. When a 1 is found then travel the
-    # manhattan distance around it and mark those spaces to be blurred.
+    # manhattan distance around it in tmp_array and blur it.
     @data.each_index do |row_num|
       @data[row_num].each_index do |column_num|
         if @data[row_num][column_num] == 1
-          puts "Found a 1! Let's travel!"
-          travel(distance, row_num, column_num)
-          puts
+          travel(distance, row_num, column_num, tmp_data)
         end
       end
     end
-
-    # go through and blur the marked spaces 
-    @data.each_index do |row_num|
-      @data[row_num].each_index do |column_num|
-        if @data[row_num][column_num] == 0.5
-          @data[row_num][column_num] = 1
-        end
-      end
-    end
+		# assign the new blurred image to data
+		@data = tmp_data
   end
 
   private
-  def travel(distance, row, column)
-    puts "Distance: #{distance}, You are at row: #{row} column: #{column}"
-
-    # mark it to be blured by setting it to 0.5
-    if @data[row][column] == 0
-      @data[row][column] = 0.5
-    end
+  def travel(distance, row, column, img)
+    # chang it to a 1
+    img[row][column] = 1
 
     # base case
     if distance == 0
       return
     end
     # go up as far as we can
-    travel((distance-1), (row-1), (column)) unless (row-1) < 0
+    travel((distance-1), (row-1), (column), img) unless (row-1) < 0
     # next we go to the right
-    travel((distance-1), (row), (column+1)) unless (column+1) > (@data[row].size-1)
+    travel((distance-1), (row), (column+1), img) unless (column+1) > (img[row].size-1)
     # go down
-    travel((distance-1), (row+1), (column)) unless (row+1) > (@data.size-1)
+    travel((distance-1), (row+1), (column), img) unless (row+1) > (img.size-1)
     # go left
-    travel((distance-1), (row), (column-1)) unless (column-1) < 0
+    travel((distance-1), (row), (column-1), img) unless (column-1) < 0
   end
 end
 
@@ -95,14 +84,11 @@ puts
 image2.output_image
 puts
 image3.output_image
-puts "Blur image1"
+
 image1.blur(1)
-puts
-puts "Blur image2"
 image2.blur(2)
-puts
-puts "Blur image3"
 image3.blur(3)
+
 puts
 puts "After Blur:"
 image1.output_image
