@@ -11,9 +11,9 @@ class Image
 
   def blur
 		tmp_array = Marshal.load(Marshal.dump(@data))
-    @data.each_index do |row_num|
-      @data[row_num].each_index do |column_num|
-        if @data[row_num][column_num] == 1
+    @data.each_with_index do |row, row_num|
+      row.each_with_index do |element, column_num|
+        if element == 1
 					tmp_array[row_num][column_num] = 1
           tmp_array[row_num-1][column_num] = 1 unless row_num-1 < 0
           tmp_array[row_num+1][column_num] = 1 unless row_num+1 > (@data.size-1)
