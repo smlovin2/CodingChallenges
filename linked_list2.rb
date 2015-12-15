@@ -35,7 +35,7 @@ def reverse_list(list, previous=nil)
 
   new_head = reverse_list(list.next_node, list)
   list.next_node = previous
-  return new_head
+  new_head
 end
 
 def is_infinite_linked_list

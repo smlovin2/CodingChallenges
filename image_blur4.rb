@@ -17,8 +17,8 @@ class Image
 		# If they are then they become a one
 		@data.each_with_index do |row, row_num|
       row.each_with_index do |element, column_num|
-				ones_coords.each_with_index do |coordinate, coord_num|
-					if manhattan_distance(column_num, row_num, coordinate[0], coordinate[1]) <= distance
+				ones_coords.each do |x,y|
+					if manhattan_distance(column_num, row_num, x, y) <= distance
 						@data[row_num][column_num] = 1
 					end
 				end
