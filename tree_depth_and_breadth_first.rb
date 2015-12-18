@@ -35,9 +35,6 @@ class Queue
 end
 
 def depth_first(goal, node)
-
-  node.print_node
-
   # base case
   if node.payload == goal
     return node
@@ -74,8 +71,6 @@ def breadth_first(goal, trunk)
   # to the queue so we can look at their children
   while !queue.is_empty?
     current_node = queue.dequeue
-
-    current_node.print_node
 
     current_node.children.each do |child|
       if child.payload == goal
