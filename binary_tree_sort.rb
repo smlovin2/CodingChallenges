@@ -17,6 +17,11 @@ class BinaryTree
     end
   end
 
+  def to_a
+    # Implment depth_first here
+
+  end
+
   private
 
   def assign_payload(val)
