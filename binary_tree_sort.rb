@@ -19,7 +19,20 @@ class BinaryTree
 
   def to_a
     # Implment depth_first here
+    if @payload.nil?
+      return []
+    end
 
+    # go down the left side
+    array = @left.to_a
+
+    # add the next lowest value to the array
+    array << @payload
+
+    # go down the right side
+    array += @right.to_a
+
+    array
   end
 
   private
@@ -33,21 +46,6 @@ class BinaryTree
     end
   end
 
-end
-
-def depth_first(node, array)
-  if node.payload.nil?
-    return
-  end
-
-  # go down the left side
-  depth_first(node.left, array)
-
-  # add the next lowest val to the array
-  array.push(node.payload)
-
-  # go down the right side
-  depth_first(node.right, array)
 end
 
 def btree_sort(data)
@@ -64,10 +62,7 @@ def btree_sort(data)
   end
 
   # Now do depth first search to build the new array
-  sorted_array = []
-  depth_first(trunk, sorted_array)
-
-  sorted_array
+  trunk.to_a
 end
 
 class TestFibonacci < MiniTest::Unit::TestCase
