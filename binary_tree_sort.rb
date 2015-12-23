@@ -18,7 +18,7 @@ class BinaryTree
   end
 
   def to_a
-    # Implment depth_first here
+
     if @payload.nil?
       return []
     end
