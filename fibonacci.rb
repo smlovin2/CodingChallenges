@@ -4,22 +4,22 @@ require 'benchmark'
 module Fibonacci
   def self.recursive_fib(n)
     # base case
-    if n == 0 || n == 1
-      return n
+    if n <= 1
+      n
+    else
+      recursive_fib(n-1) + recursive_fib(n-2)
     end
-
-    fib_num = recursive_fib(n-1) + recursive_fib(n-2)
   end
 
   def self.iterative_fib(n)
-    if n == 0 || n == 1
+    if n <= 1
       return n
     end
 
     fib_num = 0
     prev_1 = 0
     prev_2 = 1
-    for i in 2..n
+    (2..n).each do
       fib_num = prev_1 + prev_2
       prev_1 = prev_2
       prev_2 = fib_num
@@ -57,7 +57,7 @@ class TestFibonacci < MiniTest::Unit::TestCase
 end
 
 num = 35
-Benchmark.bm do |x|
+Benchmark.bmbm do |x|
   x.report("recursive_fib") {Fibonacci.recursive_fib(num)}
   x.report("iterative_fib") {Fibonacci.iterative_fib(num)}
 end

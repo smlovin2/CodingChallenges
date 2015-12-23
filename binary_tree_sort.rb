@@ -4,46 +4,34 @@ class BinaryTree
   attr_accessor :payload, :left, :right
 
   def initialize(payload, left, right)
-    @payload = payload
-    @left = left
-    @right = right
+    assign_payload(payload)
   end
 
-end
-
-def add_new_node(cur_node, val)
-  # Check if val is less than or greater than the val of the current node.
-  # If it is, check to see if there an open spot to add the new node
-  # If there is an open spot then add the new val there if not then
-  # continue down the left side if it was less than or down the right if it was
-  # greater than. If it is the same value as the current node then we try
-  # to add it to the left first if we can, then try right and if there isn't
-  # an open spot then continue down the left side of the tree.
-  if val < cur_node.payload
-    if cur_node.left.nil?
-      cur_node.left = BinaryTree.new(val, nil, nil)
+  def <<(val)
+    if @payload.nil?
+      assign_payload(val)
+    elsif val <= @payload
+        @left << val
     else
-      add_new_node(cur_node.left, val)
-    end
-  elsif val > cur_node.payload
-    if cur_node.right.nil?
-      cur_node.right = BinaryTree.new(val, nil, nil)
-    else
-      add_new_node(cur_node.right, val)
-    end
-  else
-    if cur_node.left.nil?
-      cur_node.left = BinaryTree.new(val, nil, nil)
-    elsif cur_node.right.nil?
-      cur_node.right = BinaryTree.new(val, nil, nil)
-    else
-      add_new_node(cur_node.left, val)
+      @right << val
     end
   end
+
+  private
+
+  def assign_payload(val)
+    @payload = val
+
+    unless @payload.nil?
+      @left = BinaryTree.new(nil, nil, nil)
+      @right = BinaryTree.new(nil, nil, nil)
+    end
+  end
+
 end
 
 def depth_first(node, array)
-  if node.nil?
+  if node.payload.nil?
     return
   end
 
@@ -59,14 +47,14 @@ end
 
 def btree_sort(data)
   #Empty tree
-  trunk = nil
+  trunk = BinaryTree.new(nil, nil, nil)
 
   # Create the binary tree
   data.each_with_index do |item, index|
     if index == 0
       trunk = BinaryTree.new(item, nil, nil)
     else
-      add_new_node(trunk, item)
+      trunk << item
     end
   end
 

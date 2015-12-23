@@ -29,8 +29,8 @@ class Queue
     @queue.shift
   end
 
-  def is_empty?
-    return @queue.size == 0
+  def empty?
+    @queue.empty?
   end
 end
 
@@ -47,7 +47,7 @@ def depth_first(goal, node)
     ret_val = depth_first(goal, child)
 
     # did we find the node? If so then break and return, otherwise keep looking
-    if !ret_val.nil?
+    unless ret_val.nil?
       break
     end
   end
@@ -69,7 +69,7 @@ def breadth_first(goal, trunk)
   # While we still have stuff in the queue go through each item in the queue
   # and check if it's children are the correct node. If not then add them
   # to the queue so we can look at their children
-  while !queue.is_empty?
+  while !queue.empty?
     current_node = queue.dequeue
 
     current_node.children.each do |child|
