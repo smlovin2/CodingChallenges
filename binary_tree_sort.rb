@@ -79,6 +79,10 @@ class TestFibonacci < MiniTest::Unit::TestCase
     assert_equal [-100, -14, -1, 0, 1, 2, 4, 5, 21, 30, 90], btree_sort([-100, 30, 21, 5, 4, 1, 2, 90, -1, -14, 0])
   end
 
+  def test_btree_only_trunk
+    assert_equal [7], btree_sort([7])
+  end
+
   def test_btree_empty_array
     assert_equal [], btree_sort([])
   end
