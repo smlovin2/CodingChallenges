@@ -30,7 +30,7 @@ class BinaryTree
     array << @payload
 
     # go down the right side
-    array += @right.to_a
+    array << @right.to_a
 
     array
   end
