@@ -2,6 +2,8 @@ require 'minitest/autorun'
 
 class LLRBTree
   attr_accessor :root
+  RED = true
+  BLACK = false
 
   def initialize
     @root = nil
@@ -73,8 +75,12 @@ class LLRBTree
     end
   end
 
-  RED = true
-  BLACK = false
+  class NullNode < TreeNode
+    def initialize
+      super(nil)
+      @color = BLACK
+    end
+  end
 
   def insert_val(node, val)
     if node == nil
@@ -264,6 +270,13 @@ class TestLLRB < MiniTest::Unit::TestCase
 
   def test_delete_root
     assert_equal [1, 4, 6, 9, 10, 14], llrb_deleting([7, 4, 9, 1, 6, 14, 10], 7)
+  end
+
+  def test_rotate_right
+    root = TreeNode.new(1)
+    root.color = BLACK
+    root.left = TreeNode.new(2)
+    root.right = TreeNode.new(3)
   end
 
 end
