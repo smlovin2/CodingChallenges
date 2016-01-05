@@ -126,7 +126,7 @@ class LLRBTree
     end
 
     if !is_red(node.left) && !is_red(node.left.left)
-      node. move_red_left(node)
+      node = move_red_left(node)
     end
 
     node.left = delete_min(node.left)
