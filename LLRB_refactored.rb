@@ -11,108 +11,18 @@ class LLRBTree
   end
 
   def insert(val)
-    @root.insert(val)
+    @root = @root.insert(val)
     @root.color = BLACK
   end
 
   def delete(val)
-    @root = delete_val(@root, val)
+    @root = @root.delete(val)
     @root.color = BLACK
   end
 
-  def to_a(node)
-
-    if node == nil
-      return []
-    end
-
-    # go down the left side
-    array = to_a(node.left)
-
-    # add the next lowest value to the array
-    array << node.val
-
-    # go down the right side
-    array << to_a(node.right)
-
-    array
+  def print_tree
+    root.print_node([@root], 1, @root.max_level)
   end
-
-  def print_tree(node)
-    maxLevel = root.maxLevel
-    root.print_node(1, maxLevel)
-  end
-
-  private
-
-  def delete_val(node, val)
-    if val < node.val
-      if !is_red(node.left) && !is_red(node.left.left)
-        node = move_red_left(node)
-      end
-      node.left = delete_val(node.left, val)
-    else
-      if is_red(node.left)
-        node = rotate_right(node)
-      end
-      if val == node.val && node.right == nil
-        return nil
-      end
-      if !is_red(node.right) && !is_red(node.right.left)
-        node = move_red_right(node)
-      end
-      if val == node.val
-        node.val = min_node(node.right).val
-        node.right = delete_min(node.right)
-      else
-        node.right = delete_val(node.right, val)
-      end
-    end
-    fix_up(node)
-  end
-
-  def delete_min(node)
-    if node.left == nil
-      return
-    end
-
-    if !is_red(node.left) && !is_red(node.left.left)
-      node = move_red_left(node)
-    end
-
-    node.left = delete_min(node.left)
-
-    fix_up(node)
-  end
-
-  def min_node(node)
-    cur_node = node
-    while cur_node.left != nil do
-      cur_node = cur_node.left
-    end
-
-    cur_node
-  end
-
-  def move_red_left(node)
-    flip_colors(node)
-    if is_red(node.right.left)
-      node.right = rotate_right(node.right)
-      node = rotate_left(node)
-      flip_colors(node)
-    end
-    node
-  end
-
-  def move_red_right(node)
-    flip_colors(node)
-    if is_red(node.left.left)
-      node = rotate_right(node)
-      flip_colors(node)
-    end
-    node
-  end
-
 end
 
 class TreeNode
@@ -145,6 +55,51 @@ class TreeNode
     fix_up
   end
 
+  def delete(val)
+    parent = self
+    if val < @val
+      if !@left.red? && !@left.left.red?
+        parent = move_red_left
+      end
+      parent.left = parent.left.delete(val)
+    else
+      if @left.red?
+        parent = rotate_right
+      end
+      if val == parent.val && parent.right.val.nil?
+        return NullNode.new
+      end
+      if !parent.right.red? && !parent.right.left.red?
+        parent = move_red_right
+      end
+      if val == parent.val
+        parent.val = parent.right.min_node.val
+        parent.right = parent.right.delete_min
+      else
+        parent.right = parent.right.delete(val)
+      end
+    end
+    parent.fix_up
+  end
+
+  def to_a
+
+    if @val.nil?
+      return []
+    end
+
+    # go down the left side
+    array = @left.to_a
+
+    # add the next lowest value to the array
+    array << @val
+
+    # go down the right side
+    array << @right.to_a
+
+    array.flatten
+  end
+
   def red?
     @color
   end
@@ -158,32 +113,80 @@ class TreeNode
   end
 
   def rotate_left
-    new_parent_node = @right
-    @right = new_parent_node.left
-    new_parent_node.left = self
-    new_parent_node.color = @color
+    new_parent = @right
+    @right = new_parent.left
+    new_parent.left = self
+    new_parent.color = @color
     @color = RED
-    new_parent_node
+    new_parent
   end
 
   def rotate_right
-    new_parent_node = @left
-    @left = new_parent_node.right
-    new_parent_node.right = self
-    new_parent_nodecolor = @color
+    new_parent = @left
+    @left = new_parent.right
+    new_parent.right = self
+    new_parent.color = @color
     @color = RED
-    new_parent_node
+    new_parent
+  end
+
+  def delete_min
+    parent = self
+
+    if @left.val.nil?
+      return NullNode.new
+    end
+
+    if !@left.red? && !@left.left.red?
+      parent = move_red_left
+    end
+
+    parent.left = parent.left.delete_min
+
+    fix_up
+  end
+
+  def min_node
+    cur_node = self
+    while !cur_node.left.val.nil? do
+      cur_node = cur_node.left
+    end
+
+    cur_node
+  end
+
+  def move_red_left
+    parent = self
+    flip_colors
+    if @right.left.red?
+      @right = @right.rotate_right
+      parent = rotate_left
+      flip_colors
+    end
+    parent
+  end
+
+  def move_red_right
+    parent = self
+    flip_colors
+    if @left.left.red?
+      parent = rotate_right
+      flip_colors
+    end
+    parent
   end
 
   def fix_up
+    parent = self
+
     if @right.red? && !@left.red?
-      rotate_left
+      parent = rotate_left
     end
     if @left.red? && @left.left.red?
-      rotate_right
+      parent = rotate_right
     end
 
-    self
+    parent
   end
 
   def assign_val(val)
@@ -193,62 +196,90 @@ class TreeNode
       @left = NullNode.new
       @right = NullNode.new
     end
+    self
   end
 
-  def print(level, max_level)
+  def print_node(nodes, level, max_level)
+    if nodes.empty? || all_elements_nil(nodes)
+      return
+    end
+
+    floor = max_level - level;
+    endge_lines = 2 ** ([floor - 1, 0].max)
+    first_spaces = (2 ** floor) - 1
+    between_spaces = (2 ** (floor + 1)) - 1;
+
+    print_white_spaces(first_spaces);
+
+    new_nodes = []
+    nodes.each do |node|
+        if node.val.nil?
+          new_nodes << NullNode
+          new_nodes << NullNode
+          print " "
+        else
+          print(node.val);
+          new_nodes << node.left
+          new_nodes << node.right
+        end
+
+        print_white_spaces(between_spaces);
+    end
+    puts
+
+    1.upto(endge_lines) do |i|
+        nodes.each do |node|
+            print_white_spaces(first_spaces - i);
+            if node.val.nil?
+                print_white_spaces(endge_lines + endge_lines + i + 1);
+                next
+            end
+
+            if node.left.val.nil?
+              print_white_spaces(1);
+            else
+              print "/"
+            end
+
+            print_white_spaces(i + i - 1);
+
+            if node.right.val.nil?
+              print_white_spaces(1);
+            else
+              print "\\"
+            end
+
+            print_white_spaces(endge_lines + endge_lines - i);
+        end
+
+        puts
+    end
+
+    print_node(new_nodes, level + 1, max_level);
+  end
+
+  def print_white_spaces(count)
+    count.times do
+      print " "
+    end
+  end
+
+  def max_level
     if @val.nil?
-        return;
+      return 0
+    end
 
-    int floor = maxLevel - level;
-    int endgeLines = (int) Math.pow(2, (Math.max(floor - 1, 0)));
-    int firstSpaces = (int) Math.pow(2, (floor)) - 1;
-    int betweenSpaces = (int) Math.pow(2, (floor + 1)) - 1;
+    [@left.max_level, @right.max_level].max + 1
+  end
 
-    BTreePrinter.printWhitespaces(firstSpaces);
+  def all_elements_nil(nodes)
+    nodes.each do |node|
+      if !node.val.nil?
+        return false
+      end
+    end
 
-    List<Node<T>> newNodes = new ArrayList<Node<T>>();
-    for (Node<T> node : nodes) {
-        if (node != null) {
-            System.out.print(node.data);
-            newNodes.add(node.left);
-            newNodes.add(node.right);
-        } else {
-            newNodes.add(null);
-            newNodes.add(null);
-            System.out.print(" ");
-        }
-
-        BTreePrinter.printWhitespaces(betweenSpaces);
-    }
-    System.out.println("");
-
-    for (int i = 1; i <= endgeLines; i++) {
-        for (int j = 0; j < nodes.size(); j++) {
-            BTreePrinter.printWhitespaces(firstSpaces - i);
-            if (nodes.get(j) == null) {
-                BTreePrinter.printWhitespaces(endgeLines + endgeLines + i + 1);
-                continue;
-            }
-
-            if (nodes.get(j).left != null)
-                System.out.print("/");
-            else
-                BTreePrinter.printWhitespaces(1);
-
-            BTreePrinter.printWhitespaces(i + i - 1);
-
-            if (nodes.get(j).right != null)
-                System.out.print("\\");
-            else
-                BTreePrinter.printWhitespaces(1);
-
-            BTreePrinter.printWhitespaces(endgeLines + endgeLines - i);
-        }
-
-        System.out.println("");
-    }
-
-    printNodeInternal(newNodes, level + 1, maxLevel);
+    true
   end
 end
 
@@ -257,30 +288,11 @@ class NullNode < TreeNode
     super(nil)
     @color = BLACK
   end
+
+  def self.val
+    @val
+  end
 end
-
-    private static void printWhitespaces(int count) {
-        for (int i = 0; i < count; i++)
-            System.out.print(" ");
-    }
-
-    private static <T extends Comparable<?>> int maxLevel(Node<T> node) {
-        if (node == null)
-            return 0;
-
-        return Math.max(BTreePrinter.maxLevel(node.left), BTreePrinter.maxLevel(node.right)) + 1;
-    }
-
-    private static <T> boolean isAllElementsNull(List<T> list) {
-        for (Object object : list) {
-            if (object != null)
-                return false;
-        }
-
-        return true;
-    }
-
-}
 
 class TestLLRB < MiniTest::Unit::TestCase
 
@@ -289,7 +301,46 @@ class TestLLRB < MiniTest::Unit::TestCase
     assert(tree.root)
   end
 
-  def test_insert_one_node
+  def test_flip_colors
+    root = TreeNode.new(1)
+    root.color = BLACK
+    root.left = TreeNode.new(2)
+    root.right = TreeNode.new(3)
+    root.flip_colors
+    assert_equal(RED, root.color)
+    assert_equal(BLACK, root.right.color)
+    assert_equal(BLACK, root.right.right.color)
+  end
+
+  def test_rotate_right
+    root = TreeNode.new(1)
+    root.color = BLACK
+    root.left = TreeNode.new(2)
+    root.right = TreeNode.new(3)
+    root = root.rotate_right
+    assert_equal(2, root.val)
+    assert_equal(BLACK, root.color)
+    assert_equal(1, root.right.val)
+    assert_equal(RED, root.right.color)
+    assert_equal(3, root.right.right.val)
+    assert_equal(RED, root.right.right.color)
+  end
+
+  def test_rotate_left
+    root = TreeNode.new(1)
+    root.color = BLACK
+    root.left = TreeNode.new(2)
+    root.right = TreeNode.new(3)
+    root = root.rotate_left
+    assert_equal(3, root.val)
+    assert_equal(BLACK, root.color)
+    assert_equal(1, root.left.val)
+    assert_equal(RED, root.left.color)
+    assert_equal(2, root.left.left.val)
+    assert_equal(RED, root.left.left.color)
+  end
+
+  def test_add_root
     tree = LLRBTree.new
     tree.insert(7)
     assert_equal(7, tree.root.val)
@@ -300,16 +351,93 @@ class TestLLRB < MiniTest::Unit::TestCase
     tree = LLRBTree.new
     tree.insert(7)
     tree.insert(5)
-    assert(tree.root.left)
     assert_equal(5, tree.root.left.val)
     assert_equal(RED, tree.root.left.color)
   end
 
-  def test_rotate_right
-    root = TreeNode.new(1)
-    root.color = BLACK
-    root.left = TreeNode.new(2)
-    root.right = TreeNode.new(3)
+  def test_insert_greater_node_without_rotation
+    tree = LLRBTree.new
+    tree.insert(7)
+    tree.insert(5)
+    tree.insert(10)
+    print "\n\n"
+    tree.print_tree
+    assert_equal(10, tree.root.right.val)
+    assert_equal(RED, tree.root.right.color)
   end
 
+  def test_insert_greater_node_with_rotation
+    tree = LLRBTree.new
+    tree.insert(7)
+    tree.insert(10)
+    assert_equal(10, tree.root.val)
+    assert_equal(BLACK, tree.root.color)
+  end
+
+  def test_to_a
+    root = TreeNode.new(4)
+    root.color = BLACK
+    root.left = TreeNode.new(2)
+    root.right = TreeNode.new(8)
+    root.left.left = TreeNode.new(1)
+    root.left.right = TreeNode.new(3)
+    root.right.left = TreeNode.new(6)
+    assert_equal([1, 2, 3, 4, 6, 8], root.to_a)
+  end
+
+  def test_get_min_node
+    root = TreeNode.new(8)
+    root.left = TreeNode.new(5)
+    root.right = TreeNode.new(14)
+    root.left.left = TreeNode.new(3)
+    root.left.right = TreeNode.new(7)
+    root.right.left = TreeNode.new(12)
+    assert_equal(3, root.min_node.val)
+  end
+
+  def test_delete_min_node_with_out_rotation
+    root = TreeNode.new(8)
+    root.color = BLACK
+    root.left = TreeNode.new(5)
+    root.left.color = BLACK
+    root.right = TreeNode.new(14)
+    root.right.color = BLACK
+    root.left.left = TreeNode.new(3)
+    root.right.left = TreeNode.new(12)
+    root.delete_min
+    assert_equal(nil, root.left.left.val)
+  end
+
+  def test_delete_min_node_with_rotation
+    root = TreeNode.new(8)
+    root.color = BLACK
+    root.left = TreeNode.new(5)
+    root.left.color = BLACK
+    root.right = TreeNode.new(14)
+    root.right.color = BLACK
+    root.left.left = TreeNode.new(3)
+    root.left.right = TreeNode.new(7)
+    root.right.left = TreeNode.new(12)
+    root.delete_min
+    assert_equal(5, root.left.left.val)
+    assert_equal(nil, root.left.right.val)
+  end
+
+  def test_delete
+    root = TreeNode.new(8)
+    root.color = BLACK
+    root.left = TreeNode.new(5)
+    root.left.color = BLACK
+    root.right = TreeNode.new(14)
+    root.right.color = BLACK
+    root.left.left = TreeNode.new(3)
+    root.left.right = TreeNode.new(7)
+    root.right.left = TreeNode.new(12)
+    root.right.right = TreeNode.new(16)
+    print "\n\n"
+    root.print_node([root], 1, root.max_level)
+    root.delete(16)
+    root.print_node([root], 1, root.max_level)
+    assert_equal(nil, root.right.right.val)
+  end
 end
