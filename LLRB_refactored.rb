@@ -1,8 +1,12 @@
 require 'minitest/autorun'
 
+# Not really sure where the best place to put these would be
 RED = true
 BLACK = false
 
+#########################################################################################
+#                                 LLRB TREE CLASS                                       #
+#########################################################################################
 class LLRBTree
   attr_accessor :root
 
@@ -24,6 +28,10 @@ class LLRBTree
     root.print_node([@root], 1, @root.max_level)
   end
 end
+
+#############################################################################################
+#                                  TREE NODE CLASS                                          #
+#############################################################################################
 
 class TreeNode
   attr_accessor :val, :color, :left, :right
@@ -103,8 +111,6 @@ class TreeNode
   def red?
     @color
   end
-
-
 
   def flip_colors
     @color = !@color
@@ -283,6 +289,10 @@ class TreeNode
   end
 end
 
+
+#############################################################################################
+#                                NULL TREE NODE CLASS                                       #
+#############################################################################################
 class NullNode < TreeNode
   def initialize
     super(nil)
@@ -294,6 +304,10 @@ class NullNode < TreeNode
   end
 end
 
+
+#############################################################################################
+#                                         TESTS                                             #
+#############################################################################################
 class TestLLRB < MiniTest::Unit::TestCase
 
   def test_empty_tree
